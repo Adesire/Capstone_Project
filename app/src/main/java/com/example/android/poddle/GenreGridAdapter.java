@@ -1,6 +1,8 @@
 package com.example.android.poddle;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -17,14 +19,19 @@ public class GenreGridAdapter extends RecyclerView.Adapter<GenreGridAdapter.Genr
 
     private Context c;
     private JSONArray mJSONArray;
-    //final private GridItemClickListener mListener;
 
-    public GenreGridAdapter(Context c, JSONArray mJSONArray){
+    int id;
+    final private GridItemClickListener mListener;
+
+    public GenreGridAdapter(Context c, JSONArray mJSONArray,GridItemClickListener mListener){
         this.c = c;
         this.mJSONArray = mJSONArray;
+        this.mListener = mListener;
     }
 
-
+    public interface GridItemClickListener{
+        void onGridItemClickListener(Bundle bundle);
+    }
 
     @NonNull
     @Override
@@ -62,8 +69,8 @@ public class GenreGridAdapter extends RecyclerView.Adapter<GenreGridAdapter.Genr
         void bind(int itemPosition){
             try{
 
-                JSONObject genreObject = mJSONArray.getJSONObject(itemPosition);
-                String genreName = genreObject.optString("name");
+               JSONObject genreObject = mJSONArray.getJSONObject(itemPosition);
+               String genreName = genreObject.optString("name");
 
                 genre.setText(genreName);
 
@@ -74,7 +81,10 @@ public class GenreGridAdapter extends RecyclerView.Adapter<GenreGridAdapter.Genr
 
         @Override
         public void onClick(View v) {
-            Log.e("TAG","click click");
+            int clickedPosition = getAdapterPosition();
+            Bundle b = new Bundle();
+            b.putString("GENRE_OBJECT",mJSONArray.optJSONObject(clickedPosition).toString());
+            mListener.onGridItemClickListener(b);
         }
     }
 }

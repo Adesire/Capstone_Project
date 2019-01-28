@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".PodcastActivity">
 
     <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
+        android:id="@+id/toolbar2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
@@ -16,9 +16,11 @@
         android:elevation="4dp">
     </android.support.v7.widget.Toolbar>
 
+
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/genreGrid"
-        android:layout_below="@id/toolbar"
+        android:id="@+id/podcastGrid"
+        android:layout_below="@id/toolbar2"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="wrap_content"/>
+
 </RelativeLayout>
