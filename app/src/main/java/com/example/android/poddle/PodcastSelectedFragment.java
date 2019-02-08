@@ -1,9 +1,11 @@
 package com.example.android.poddle;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,6 +18,8 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.example.android.poddle.data.AppDatabase;
+import com.example.android.poddle.data.FavouritePodcasts;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.squareup.picasso.Picasso;
@@ -42,12 +46,17 @@ public class PodcastSelectedFragment extends Fragment {
     ArrayList<PodcastModel> episodes;
     EpisodesGridAdapter episodeAdapter;
     ProgressBar loading;
+    FloatingActionButton fab;
+
+    private AppDatabase fdb;
+
+    EpisodesGridAdapter.OnEpisodeClickedListener mListener;
 
 
-    public static PodcastSelectedFragment NewInstance(String podcastData){
+    public static PodcastSelectedFragment NewInstance(PodcastModel podcastData){
         PodcastSelectedFragment fragment = new PodcastSelectedFragment();
         Bundle b = new Bundle();
-        b.putString("PODCAST_DATA",podcastData);
+        b.putParcelable("PODCAST_DATA",podcastData);
         fragment.setArguments(b);
         return fragment;
     }
@@ -62,6 +71,7 @@ public class PodcastSelectedFragment extends Fragment {
         podcastImage = v.findViewById(R.id.selected_image);
         episodesGrid = v.findViewById(R.id.episodesGrid);
         loading = v.findViewById(R.id.progressBar);
+        fab = v.findViewById(R.id.floatingActionButton);
 
         mToolbarLayout = (CollapsingToolbarLayout)v.findViewById(R.id.collapsing_toolbar_layout);
         mToolbar = v.findViewById(R.id.app_bar);
@@ -71,10 +81,19 @@ public class PodcastSelectedFragment extends Fragment {
 
         episodes = new ArrayList<>();
 
-        episodeAdapter = new EpisodesGridAdapter(getActivityCast(),episodes);
+        episodeAdapter = new EpisodesGridAdapter(getActivityCast(),episodes,mListener);
         episodesGrid.setAdapter(episodeAdapter);
 
         episodesGrid.setHasFixedSize(true);
+
+        fdb = AppDatabase.getInstance(getActivityCast());
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onFavouriteClicked();
+            }
+        });
 
         return v;
     }
@@ -82,17 +101,13 @@ public class PodcastSelectedFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         Bundle dataBundle = getArguments();
-        String data = dataBundle.getString("PODCAST_DATA");
-        try {
-            JSONObject object = new JSONObject(data);
-            originTitle = object.optString("title_original");
-            originDescription = object.optString("description_original");
-            podcastID = object.optString("id");
-            imageURL = object.optString("image");
+        PodcastModel data = dataBundle.getParcelable("PODCAST_DATA");
 
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+            originTitle = data.getPodcastTitle();
+            originDescription = data.getPodcastDesc();
+            podcastID = data.getId();
+            imageURL = data.getPodcastThumbnail();
+        //}
         mToolbarLayout.setTitle(originTitle);
         originalDescription.setText(originDescription);
         Picasso.with(getActivityCast()).load(imageURL).into(podcastImage);
@@ -119,6 +134,13 @@ public class PodcastSelectedFragment extends Fragment {
             }
         });
 
+
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mListener = (EpisodesGridAdapter.OnEpisodeClickedListener) context;
     }
 
     private void selectedPodcastNetworking(String URL,String key){
@@ -134,7 +156,7 @@ public class PodcastSelectedFragment extends Fragment {
 
                 for(int j=0;j<podcastData.length();j++){
                     JSONObject o = podcastData.optJSONObject(j);
-                    episodes.add(new PodcastModel(o.optString("title_original"),o.optString("description_original")));
+                    episodes.add(new PodcastModel(o.optString("title_original"),o.optString("description_original"),o.optString("audio")));
                     episodeAdapter.notifyDataSetChanged();
                 }
 
@@ -158,10 +180,20 @@ public class PodcastSelectedFragment extends Fragment {
 
                 for(int j=0;j<podcastDataNext.length();j++){
                     JSONObject o = podcastDataNext.optJSONObject(j);
-                        episodes.add(new PodcastModel(o.optString("title_original"),o.optString("description_original")));
+                        episodes.add(new PodcastModel(o.optString("title_original"),o.optString("description_original"),o.optString("audio")));
                         episodeAdapter.notifyDataSetChanged();
 
                 }
+            }
+        });
+    }
+
+    private void onFavouriteClicked(){
+        final FavouritePodcasts podcast = new FavouritePodcasts(originTitle,originDescription,imageURL,podcastID);
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                fdb.favouriteDao().insertFav(podcast);
             }
         });
     }

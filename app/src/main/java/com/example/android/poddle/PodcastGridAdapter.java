@@ -16,15 +16,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
 public class PodcastGridAdapter extends RecyclerView.Adapter<PodcastGridAdapter.PodcastViewHolder>{
 
     Context c;
-    JSONArray mJSONArray;
+    ArrayList<PodcastModel> podcast;
     PodcastItemClickedListener mListener;
 
-    public PodcastGridAdapter(Context c,JSONArray mJSONArray, PodcastItemClickedListener mListener){
+    public PodcastGridAdapter(Context c, ArrayList<PodcastModel> podcast, PodcastItemClickedListener mListener){
         this.c = c;
-        this.mJSONArray = mJSONArray;
+        this.podcast = podcast;
         this.mListener = mListener;
     }
 
@@ -48,10 +50,10 @@ public class PodcastGridAdapter extends RecyclerView.Adapter<PodcastGridAdapter.
     @Override
     public int getItemCount() {
         int length = 0;
-        if (mJSONArray == null)
+        if (podcast == null)
             return length;
 
-        return mJSONArray.length();
+        return podcast.size();
     }
 
     class PodcastViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
@@ -69,23 +71,16 @@ public class PodcastGridAdapter extends RecyclerView.Adapter<PodcastGridAdapter.
 
         void bind(int itemPosition){
 
-            try {
-                JSONObject object = mJSONArray.getJSONObject(itemPosition);
-                String titlePod = object.optString("title_original");
+                String titlePod = podcast.get(itemPosition).getPodcastTitle();
                 if(titlePod.length()>20){
                     titlePod = titlePod.substring(0,20)+"...";
                 }
-                String thumbnailURL = object.optString("thumbnail");
-                String desc = object.optString("description_original");
+                String thumbnailURL = podcast.get(itemPosition).getPodcastThumbnail();
+                String desc = podcast.get(itemPosition).getPodcastDesc();
 
                 title.setText(titlePod);
                 description.setText(desc);
                 Picasso.with(c).load(thumbnailURL).into(thumbnail);
-
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
 
         }
 
@@ -93,7 +88,8 @@ public class PodcastGridAdapter extends RecyclerView.Adapter<PodcastGridAdapter.
         public void onClick(View v) {
             int clickedPosition = getAdapterPosition();
             Bundle b = new Bundle();
-            b.putString("PODCAST_ITEM",mJSONArray.optJSONObject(clickedPosition).toString());
+            //b.putString("PODCAST_ITEM",podcast.get(clickedPosition).toString());
+            b.putParcelable("PODCAST_ITEM",podcast.get(clickedPosition));
             mListener.onPodcastItemClicked(b);
         }
     }

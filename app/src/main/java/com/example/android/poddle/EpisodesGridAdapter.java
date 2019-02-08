@@ -1,6 +1,7 @@
 package com.example.android.poddle;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -14,10 +15,16 @@ public class EpisodesGridAdapter extends RecyclerView.Adapter<EpisodesGridAdapte
 
     private Context c;
     private ArrayList<PodcastModel> podcast;
+    private OnEpisodeClickedListener mListener;
 
-    public EpisodesGridAdapter(Context c, ArrayList<PodcastModel> podcast){
+    public EpisodesGridAdapter(Context c, ArrayList<PodcastModel> podcast,OnEpisodeClickedListener mListener){
         this.c = c;
         this.podcast = podcast;
+        this.mListener = mListener;
+    }
+
+    public interface OnEpisodeClickedListener{
+        void onEpisodeClicked(Bundle bundle);
     }
 
     @NonNull
@@ -38,17 +45,29 @@ public class EpisodesGridAdapter extends RecyclerView.Adapter<EpisodesGridAdapte
         return podcast.size();
     }
 
-    class EpisodeViewHolder extends RecyclerView.ViewHolder{
+    class EpisodeViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         TextView episodeTitle,episodeDescription;
 
         public EpisodeViewHolder(View itemView) {
             super(itemView);
+            itemView.setOnClickListener(this);
             episodeTitle = itemView.findViewById(R.id.episode_title);
             episodeDescription = itemView.findViewById(R.id.episode_description);
         }
         void bind(int itemPosition){
             episodeTitle.setText(podcast.get(itemPosition).getEpisodeTitle());
             episodeDescription.setText(podcast.get(itemPosition).getEpisodeDescription());
+        }
+
+        @Override
+        public void onClick(View v) {
+            int clickedItemPosition = getAdapterPosition();
+            Bundle b = new Bundle();
+            b.putString("PODCAST_AUDIO",podcast.get(clickedItemPosition).getEpisodeAudio());
+            b.putString("PODCAST_TITLE",podcast.get(clickedItemPosition).getEpisodeTitle());
+            b.putString("PODCAST_DESC",podcast.get(clickedItemPosition).getEpisodeDescription());
+
+            mListener.onEpisodeClicked(b);
         }
     }
 
