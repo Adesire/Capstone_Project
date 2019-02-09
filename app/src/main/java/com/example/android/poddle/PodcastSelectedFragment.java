@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.poddle.data.AppDatabase;
 import com.example.android.poddle.data.FavouritePodcasts;
@@ -54,6 +55,14 @@ public class PodcastSelectedFragment extends Fragment {
 
 
     public static PodcastSelectedFragment NewInstance(PodcastModel podcastData){
+        PodcastSelectedFragment fragment = new PodcastSelectedFragment();
+        Bundle b = new Bundle();
+        b.putParcelable("PODCAST_DATA",podcastData);
+        fragment.setArguments(b);
+        return fragment;
+    }
+
+    public static PodcastSelectedFragment NewInstance2(FavouritePodcasts podcastData){
         PodcastSelectedFragment fragment = new PodcastSelectedFragment();
         Bundle b = new Bundle();
         b.putParcelable("PODCAST_DATA",podcastData);
@@ -101,12 +110,21 @@ public class PodcastSelectedFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         Bundle dataBundle = getArguments();
-        PodcastModel data = dataBundle.getParcelable("PODCAST_DATA");
+        if(dataBundle.getParcelable("PODCAST_DATA") instanceof PodcastModel){
+            PodcastModel data = dataBundle.getParcelable("PODCAST_DATA");
 
             originTitle = data.getPodcastTitle();
             originDescription = data.getPodcastDesc();
             podcastID = data.getId();
             imageURL = data.getPodcastThumbnail();
+        }else{
+            FavouritePodcasts data = dataBundle.getParcelable("PODCAST_DATA");
+
+            originTitle = data.getPodcastTitle();
+            originDescription = data.getPodcastDesc();
+            podcastID = data.getPid();
+            imageURL = data.getPodcastThumbnail();
+        }
         //}
         mToolbarLayout.setTitle(originTitle);
         originalDescription.setText(originDescription);
@@ -189,11 +207,13 @@ public class PodcastSelectedFragment extends Fragment {
     }
 
     private void onFavouriteClicked(){
+        Toast.makeText(getContext(),"SAVED",Toast.LENGTH_LONG).show();
         final FavouritePodcasts podcast = new FavouritePodcasts(originTitle,originDescription,imageURL,podcastID);
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {
                 fdb.favouriteDao().insertFav(podcast);
+
             }
         });
     }

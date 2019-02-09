@@ -1,5 +1,6 @@
 package com.example.android.poddle;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v4.app.Fragment;
@@ -13,6 +14,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.android.poddle.data.FavouritePodcasts;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -25,6 +27,7 @@ public class PodacastSelectedActivity extends AppCompatActivity implements Episo
     Toolbar mToolbar;
     String originTitle;
     String image;
+    static String VERSION;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,13 +36,20 @@ public class PodacastSelectedActivity extends AppCompatActivity implements Episo
 
         mToolbar = (Toolbar) findViewById(R.id.toolbarSelected);
 
-        PodcastModel model = getIntent().getParcelableExtra("PODCAST_INTENT");
+        Intent data = getIntent();
 
+        if(data.getParcelableExtra("PODCAST_INTENT") instanceof PodcastModel){
+            PodcastModel model = data.getParcelableExtra("PODCAST_INTENT");
             originTitle = model.getPodcastTitle();
             image = model.getPodcastThumbnail();
 
-        replaceSelectedPodcastActivityContent(PodcastSelectedFragment.NewInstance(model),false);
-
+            replaceSelectedPodcastActivityContent(PodcastSelectedFragment.NewInstance(model),false);
+        }else{
+            FavouritePodcasts fav = data.getParcelableExtra("PODCAST_INTENT");
+            originTitle = fav.getPodcastTitle();
+            image = fav.getPodcastThumbnail();
+            replaceSelectedPodcastActivityContent(PodcastSelectedFragment.NewInstance2(fav),false);
+        }
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

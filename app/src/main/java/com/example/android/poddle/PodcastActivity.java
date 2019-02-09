@@ -71,7 +71,6 @@ public class PodcastActivity extends AppCompatActivity implements PodcastGridAda
 
         mFavouritesAdapter = new FavouritesAdapter(this,this);
         db = AppDatabase.getInstance(getApplicationContext());
-        setupViewModel();
 
         if(!data.equals("") && x==0){
             try {
@@ -86,8 +85,9 @@ public class PodcastActivity extends AppCompatActivity implements PodcastGridAda
                     "q="+name+"&sort_by_date=0&type=podcast";
 
             podcastNetworkCalls(URL,MainActivity.KEY);
-        }else if(data.equals("fav")){
-
+        }else if(!data.equals("") && x==1){
+            setupViewModel();
+            Log.e("THISSS","ONEEEE");
             podcastGrid.setAdapter(mFavouritesAdapter);
 
         } else{
@@ -119,6 +119,7 @@ public class PodcastActivity extends AppCompatActivity implements PodcastGridAda
             @Override
             public void onChanged(@Nullable List<FavouritePodcasts> favouritePodcasts) {
                 mFavouritesAdapter.setFavouritePodcasts(favouritePodcasts);
+                Log.e("Favourite",favouritePodcasts.get(0).getPodcastTitle());
             }
         });
     }
@@ -168,6 +169,7 @@ public class PodcastActivity extends AppCompatActivity implements PodcastGridAda
 
     @Override
     public void onPodcastItemClicked(Bundle bundle) {
+
         Intent mine = new Intent(this,PodacastSelectedActivity.class);
         mine.putExtra("PODCAST_INTENT",bundle.getParcelable("PODCAST_ITEM"));
         //Log.e("PODCAST_INTENT",bundle.getString("PODCAST_ITEM"));

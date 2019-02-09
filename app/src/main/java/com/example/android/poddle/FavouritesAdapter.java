@@ -33,17 +33,14 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.My
 
     @NonNull
     @Override
-    public FavouritesAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        Context context = parent.getContext();
-        LayoutInflater inflater = LayoutInflater.from(context);
-
+    public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View view = inflater.inflate(R.layout.podcast_grid_item,parent,false);
-
         return new MyViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull FavouritesAdapter.MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         holder.bind(position);
     }
 
@@ -57,8 +54,8 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.My
 
     public List<FavouritePodcasts> getFavouritePodcasts(){ return podcast;}
 
-    public void setFavouritePodcasts(List<FavouritePodcasts> movies){
-        this.podcast = movies;
+    public void setFavouritePodcasts(List<FavouritePodcasts> podcast){
+        this.podcast = podcast;
         notifyDataSetChanged();
     }
 

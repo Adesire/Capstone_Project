@@ -46,8 +46,7 @@ public class MainActivity extends AppCompatActivity implements GenreGridAdapter.
         mLayoutManager = new GridLayoutManager(this,3);
         genreView.setLayoutManager(mLayoutManager);
 
-        networkCalls("https://listennotes.p.mashape.com/api/v1/genres",KEY);
-
+        networkCalls("https://api.listennotes.com/api/v1/genres",KEY);
 
 
     }
@@ -62,7 +61,6 @@ public class MainActivity extends AppCompatActivity implements GenreGridAdapter.
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 super.onSuccess(statusCode, headers, response);
                 JSONArray data = response.optJSONArray("genres");
-                Log.e("DATA",data.toString());
 
                 genreView.setAdapter(new GenreGridAdapter(MainActivity.this,data,MainActivity.this));
             }
@@ -115,6 +113,7 @@ public class MainActivity extends AppCompatActivity implements GenreGridAdapter.
         if(itemId == R.id.favourites){
             Intent mine = new Intent(this,PodcastActivity.class);
             mine.putExtra("PodcastBundle","fav");
+            PodcastActivity.x = 1;
             startActivity(mine);
         }
         return super.onOptionsItemSelected(item);
