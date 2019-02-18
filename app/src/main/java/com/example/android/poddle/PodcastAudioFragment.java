@@ -2,12 +2,16 @@ package com.example.android.poddle;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -51,7 +55,7 @@ import com.google.android.exoplayer2.util.Util;
 import com.squareup.picasso.Picasso;
 
 
-public class PodcastAudioFragment extends Fragment implements Player.EventListener{
+public class PodcastAudioFragment extends Fragment implements Player.EventListener {
 
     private TextView episodeNowPlayingTitle;
 
@@ -64,36 +68,38 @@ public class PodcastAudioFragment extends Fragment implements Player.EventListen
     Toolbar mToolbar;
     static String IMAGE;
     static boolean ON_LISTEN_CLICKED;
+    PlaybackWidget mPlaybackWidget;
 
-    String audio,title,desc;
+    String audio, title, desc;
 
-    public static PodcastAudioFragment newInstance(String audioString,String title, String desc){
+    public static PodcastAudioFragment newInstance(String audioString, String title, String desc) {
         PodcastAudioFragment fragment = new PodcastAudioFragment();
         Bundle b = new Bundle();
-        b.putString("Audio",audioString);
-        b.putString("Audio_title",title);
-        b.putString("Audio_desc",desc);
+        b.putString("Audio", audioString);
+        b.putString("Audio_title", title);
+        b.putString("Audio_desc", desc);
         fragment.setArguments(b);
         return fragment;
     }
 
-    private PodacastSelectedActivity getActivityCast(){
-        return (PodacastSelectedActivity)getActivity();
+    private PodacastSelectedActivity getActivityCast() {
+        return (PodacastSelectedActivity) getActivity();
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_podcast_audio,container,false);
+        View v = inflater.inflate(R.layout.fragment_podcast_audio, container, false);
 
         ImageView thumbnail = v.findViewById(R.id.playingThumbnail);
         Picasso.with(getContext()).load(IMAGE).into(thumbnail);
 
         MyMediaService.AUDIO_IMAGE = IMAGE;
+        mPlaybackWidget = new PlaybackWidget();
 
         episodeNowPlayingTitle = v.findViewById(R.id.nowPlayingTitle);
 
-        mPlayerView = (PlayerView)v.findViewById(R.id.playerView);
+        mPlayerView = (PlayerView) v.findViewById(R.id.playerView);
 
         initializeMediaSession();
 
@@ -112,7 +118,7 @@ public class PodcastAudioFragment extends Fragment implements Player.EventListen
         episodeNowPlayingTitle.setSelected(true);
         //episodeDescription.setText(desc);
 
-        Log.e("TAG",audio);
+        Log.e("TAG", audio);
 
         initializePlayer(audio);
     }
@@ -120,20 +126,20 @@ public class PodcastAudioFragment extends Fragment implements Player.EventListen
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(mExoPlayer!=null){
+        if (mExoPlayer != null) {
             releasePlayer();
             mMediaSession.setActive(false);
         }
     }
 
-    private void releasePlayer(){
+    private void releasePlayer() {
         mExoPlayer.stop();
         mExoPlayer.release();
         mExoPlayer = null;
     }
 
-    private void initializeMediaSession(){
-        mMediaSession = new MediaSessionCompat(getContext(),TAG);
+    private void initializeMediaSession() {
+        mMediaSession = new MediaSessionCompat(getContext(), TAG);
 
         MyMediaService.mediaSession = mMediaSession;
         PlaybackWidgetService.mediaSession = mMediaSession;
@@ -157,12 +163,12 @@ public class PodcastAudioFragment extends Fragment implements Player.EventListen
         mMediaSession.setActive(true);
     }
 
-    private void initializePlayer(String audioUri){
-        if(mExoPlayer==null){
+    private void initializePlayer(String audioUri) {
+        if (mExoPlayer == null) {
             TrackSelector trackSelector = new DefaultTrackSelector();
             LoadControl loadControl = new DefaultLoadControl();
             DefaultRenderersFactory renderersFactory = new DefaultRenderersFactory(getContext());
-            mExoPlayer = ExoPlayerFactory.newSimpleInstance(renderersFactory,trackSelector,loadControl);
+            mExoPlayer = ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector, loadControl);
 
             MyMediaService.player = mExoPlayer;
             PlaybackWidgetService.player = mExoPlayer;
@@ -170,7 +176,7 @@ public class PodcastAudioFragment extends Fragment implements Player.EventListen
             mPlayerView.setPlayer(mExoPlayer);
             mExoPlayer.addListener(this);
 
-            String userAgent = Util.getUserAgent(getContext(),"Poddle");
+            String userAgent = Util.getUserAgent(getContext(), "Poddle");
 
             DataSource.Factory dataSourceFactory = new DefaultHttpDataSourceFactory(
                     userAgent, null,
@@ -186,8 +192,14 @@ public class PodcastAudioFragment extends Fragment implements Player.EventListen
             MyMediaService.AUDIO_URL = audioUri;
             MyMediaService.AUDIO_TITLE = title;
             MyMediaService.AUDIO_DESC = desc;
-            PlaybackWidget.HEADING = title;
-
+            //PlaybackWidget.HEADING = title;
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("media_title", title);
+            editor.apply();
+            AppWidgetManager manager = AppWidgetManager.getInstance(getContext());
+            ComponentName thisWidget = new ComponentName(getContext(), PlaybackWidget.class);
+            mPlaybackWidget.onUpdate(getContext(), manager, manager.getAppWidgetIds(thisWidget));
             showNotification();
             mExoPlayer.prepare(mediaSource);
             mExoPlayer.setPlayWhenReady(ON_LISTEN_CLICKED);
@@ -195,8 +207,8 @@ public class PodcastAudioFragment extends Fragment implements Player.EventListen
     }
 
 
-    private void showNotification(){
-        Util.startForegroundService(getContext(),new Intent(getActivity(),MyMediaService.class));
+    private void showNotification() {
+        Util.startForegroundService(getContext(), new Intent(getActivity(), MyMediaService.class));
         //Util.startForegroundService(getContext(),new Intent(getActivity(),PlaybackWidgetService.class));
 
     }
@@ -218,11 +230,11 @@ public class PodcastAudioFragment extends Fragment implements Player.EventListen
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-        if((playbackState == ExoPlayer.STATE_READY) && playWhenReady){
+        if ((playbackState == ExoPlayer.STATE_READY) && playWhenReady) {
             mStateBuilder.setState(PlaybackStateCompat.STATE_PLAYING,
                     mExoPlayer.getCurrentPosition(), 1f);
             Log.e("onPlayerStateChanged:", "PLAYING");
-        } else if((playbackState == ExoPlayer.STATE_READY)){
+        } else if ((playbackState == ExoPlayer.STATE_READY)) {
             mStateBuilder.setState(PlaybackStateCompat.STATE_PAUSED,
                     mExoPlayer.getCurrentPosition(), 1f);
             Log.d("onPlayerStateChanged:", "PAUSED");
@@ -259,9 +271,9 @@ public class PodcastAudioFragment extends Fragment implements Player.EventListen
     public void onSeekProcessed() {
 
     }
-    
 
-    private class MySessionCallback extends MediaSessionCompat.Callback{
+
+    private class MySessionCallback extends MediaSessionCompat.Callback {
         @Override
         public void onPlay() {
             mExoPlayer.setPlayWhenReady(ON_LISTEN_CLICKED);
@@ -279,15 +291,15 @@ public class PodcastAudioFragment extends Fragment implements Player.EventListen
 
     }
 
-    public static class MediaReceiver extends BroadcastReceiver{
+    public static class MediaReceiver extends BroadcastReceiver {
 
-        public MediaReceiver(){
+        public MediaReceiver() {
 
         }
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            MediaButtonReceiver.handleIntent(mMediaSession,intent);
+            MediaButtonReceiver.handleIntent(mMediaSession, intent);
         }
     }
 

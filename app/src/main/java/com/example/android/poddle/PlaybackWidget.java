@@ -5,6 +5,8 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.widget.RemoteViews;
@@ -18,6 +20,10 @@ import com.google.android.exoplayer2.ui.PlayerView;
 public class PlaybackWidget extends AppWidgetProvider {
 
     public static String HEADING;
+    SharedPreferences mSharedPreferences;
+
+    public PlaybackWidget() {
+    }
 
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
@@ -26,8 +32,8 @@ public class PlaybackWidget extends AppWidgetProvider {
         // Construct the RemoteViews object
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.playback_widget);
 
-        Intent serviceIntentPlay = new Intent(context,PlaybackWidgetService.class);
-        Intent serviceIntentPause = new Intent(context,PlaybackWidgetService.class);
+        Intent serviceIntentPlay = new Intent(context, PlaybackWidgetService.class);
+        Intent serviceIntentPause = new Intent(context, PlaybackWidgetService.class);
 
         serviceIntentPlay.setAction("PLAY");
         serviceIntentPlay.setAction("PAUSE");
@@ -35,15 +41,17 @@ public class PlaybackWidget extends AppWidgetProvider {
 
         //PendingIntent playPausePending = MediaButtonReceiver.buildMediaButtonPendingIntent(context, PlaybackStateCompat.ACTION_PLAY_PAUSE);
         // PendingIntent.getService(context,0,serviceIntentPlay,0);
-        PendingIntent playPending = PendingIntent.getService(context,0,serviceIntentPlay,0);
-        PendingIntent ffwdPending = PendingIntent.getService(context,0,serviceIntentPause,0);
+        PendingIntent playPending = PendingIntent.getService(context, 0, serviceIntentPlay, 0);
+        PendingIntent ffwdPending = PendingIntent.getService(context, 0, serviceIntentPause, 0);
         //views.setRemoteAdapter(R.id.playbackControls,serviceIntent);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        if (sharedPreferences.contains("media_title")) {
+            views.setTextViewText(R.id.widget_NowPlayingTitle, sharedPreferences.getString("media_title", "title"));
+        }
+        views.setImageViewBitmap(R.id.widget_PlayingThumbnail, MyMediaService.getMyBitmap());
 
-        views.setTextViewText(R.id.widget_NowPlayingTitle,"The Texxxxt");
-        views.setImageViewBitmap(R.id.widget_PlayingThumbnail,MyMediaService.getMyBitmap());
-
-        views.setOnClickPendingIntent(R.id.exo_play,playPending);
-        views.setOnClickPendingIntent(R.id.exo_ffwd,ffwdPending);
+        views.setOnClickPendingIntent(R.id.exo_play, playPending);
+        views.setOnClickPendingIntent(R.id.exo_ffwd, ffwdPending);
 
 
         // Instruct the widget manager to update the widget

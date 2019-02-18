@@ -1,13 +1,10 @@
 package com.example.android.poddle;
 
 import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.media.MediaDescriptionCompat;
-import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
 import android.widget.RemoteViewsService;
@@ -33,9 +30,9 @@ public class PlaybackWidgetService extends Service {
             Toast.makeText(this,"Please play podcast from app",
                     Toast.LENGTH_LONG).show();
         }else{
-            mediaSession.setCallback(new MySessionCallback());
             mediaSession.setActive(true);
             mMediaSessionConnector = new MediaSessionConnector(mediaSession);
+
             mMediaSessionConnector.setPlayer(player,null);
 
         }
@@ -59,46 +56,17 @@ public class PlaybackWidgetService extends Service {
         if (intent.getAction().equals("PLAY")) {
             //make whatever you want (play/stop song, next/previous etc)
             Log.e("SERVICE","A button clicked!!");
+
             player.setPlayWhenReady(true);
         }
 
         return super.onStartCommand(intent, flags, startId);
     }
 
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
-
-    private class MySessionCallback extends MediaSessionCompat.Callback{
-        @Override
-        public void onPlay() {
-            player.setPlayWhenReady(true);
-        }
-
-        @Override
-        public void onPause() {
-            player.setPlayWhenReady(false);
-        }
-
-        @Override
-        public void onSkipToPrevious() {
-            player.seekTo(0);
-        }
-
-    }
-
-    public static class MediaReceiver extends BroadcastReceiver {
-
-        public MediaReceiver(){
-
-        }
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            MediaButtonReceiver.handleIntent(mediaSession,intent);
-        }
-    }
-
 }
