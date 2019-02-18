@@ -29,6 +29,7 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.My
 
     public interface ItemClickListener {
         void onItemClicked(Bundle b);
+        void onItemLongClicked(int pos);
     }
 
     @NonNull
@@ -59,7 +60,7 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.My
         notifyDataSetChanged();
     }
 
-    class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,View.OnLongClickListener{
 
         ImageView thumbnail;
         TextView title,description;
@@ -71,6 +72,7 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.My
             title = itemView.findViewById(R.id.podcast_title);
             description = itemView.findViewById(R.id.podcast_description);
             itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(this);
         }
 
         void bind(int itemPosition){
@@ -95,6 +97,13 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.My
             //b.putString("PODCAST_ITEM",podcast.get(clickedPosition).toString());
             b.putParcelable("PODCAST_ITEM",podcast.get(clickedPosition));
             mListener.onItemClicked(b);
+        }
+
+        @Override
+        public boolean onLongClick(View v) {
+            int clickedPosition = getAdapterPosition();
+            mListener.onItemLongClicked(clickedPosition);
+            return true;
         }
     }
 }

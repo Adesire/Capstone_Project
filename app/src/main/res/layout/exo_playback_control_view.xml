@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/playbackControls"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -66,12 +67,10 @@
                 android:includeFontPadding="false"
                 android:textColor="#FFBEBEBE"/>
 
-            <SeekBar android:id="@id/exo_progress"
+            <com.google.android.exoplayer2.ui.DefaultTimeBar android:id="@id/exo_progress"
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:layout_height="32dp"
-                android:focusable="false"
-                style="?android:attr/progressBarStyleHorizontal"/>
+                android:layout_height="32dp"/>
 
             <TextView android:id="@id/exo_duration"
                 android:layout_width="wrap_content"

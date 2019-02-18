@@ -7,48 +7,25 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".PodcastAudioFragment">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:layout_gravity="bottom"
-        android:orientation="vertical">
 
-        <!--<android.support.v7.widget.Toolbar
-            android:id="@+id/audioToolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-            android:background="@color/colorPrimary">
-
-        </android.support.v7.widget.Toolbar>-->
-
-        <com.google.android.exoplayer2.ui.SimpleExoPlayerView
+        <!--<com.google.android.exoplayer2.ui.SimpleExoPlayerView
             android:id="@+id/playerView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             app:use_artwork="false"
             android:paddingBottom="3dp"
-            app:show_timeout="0"/>
+            app:show_timeout="0"/>-->
 
-
-        <!--<TextView
-            android:id="@+id/episode_title"
+        <com.google.android.exoplayer2.ui.PlayerView
+            android:id="@+id/playerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Episode Title"
-            android:textSize="30sp"
-            android:textStyle="bold" />
+            android:layout_gravity="center"
+            app:use_artwork="false"
+            app:controller_layout_id="@layout/exo_playback_control_view"
+            app:show_timeout="0">
 
-        <TextView
-            android:id="@+id/episode_description"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="description"
-            android:textSize="18sp" />-->
-
-    </LinearLayout>
-
+        </com.google.android.exoplayer2.ui.PlayerView>
 
 </FrameLayout>

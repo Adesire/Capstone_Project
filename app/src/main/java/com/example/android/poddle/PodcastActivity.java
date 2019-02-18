@@ -1,7 +1,9 @@
 package com.example.android.poddle;
 
+import android.app.AlertDialog;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.SearchView;
+import android.widget.Toast;
 
 import com.example.android.poddle.data.AppDatabase;
 import com.example.android.poddle.data.FavouritePodcasts;
@@ -88,7 +91,9 @@ public class PodcastActivity extends AppCompatActivity implements PodcastGridAda
         }else if(!data.equals("") && x==1){
             setupViewModel();
             Log.e("THISSS","ONEEEE");
+            Toast.makeText(this,"Long Click to remove Podcast",Toast.LENGTH_LONG).show();
             podcastGrid.setAdapter(mFavouritesAdapter);
+            toolbar.setTitle(R.string.favourite);
 
         } else{
 
@@ -180,5 +185,27 @@ public class PodcastActivity extends AppCompatActivity implements PodcastGridAda
     @Override
     public void onItemClicked(Bundle b) {
         onPodcastItemClicked(b);
+    }
+
+    @Override
+    public void onItemLongClicked(final int pos) {
+        AlertDialog.Builder build = new AlertDialog.Builder(this);
+        build.setIcon(android.R.drawable.ic_dialog_alert)
+                .setMessage("Remove from Favourites?")
+                .setNegativeButton(android.R.string.cancel,null)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                List<FavouritePodcasts> movie = mFavouritesAdapter.getFavouritePodcasts();
+                                db.favouriteDao().deletePodcastEntry(movie.get(pos));
+                            }
+                        });
+
+                    }
+                })
+                .show();
     }
 }

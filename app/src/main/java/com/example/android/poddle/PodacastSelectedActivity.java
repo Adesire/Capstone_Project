@@ -27,7 +27,6 @@ public class PodacastSelectedActivity extends AppCompatActivity implements Episo
     Toolbar mToolbar;
     String originTitle;
     String image;
-    static String VERSION;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

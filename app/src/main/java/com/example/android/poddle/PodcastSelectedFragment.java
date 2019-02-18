@@ -2,6 +2,7 @@ package com.example.android.poddle;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -14,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -38,7 +40,8 @@ public class PodcastSelectedFragment extends Fragment {
 
     TextView originalDescription;
     ImageView podcastImage;
-    String originTitle,originDescription,imageURL,podcastID;
+    Button favourite;
+    static String originTitle,originDescription,imageURL,podcastID;
     RecyclerView episodesGrid;
     LinearLayoutManager mLayoutManager;
     private CollapsingToolbarLayout mToolbarLayout;
@@ -48,6 +51,8 @@ public class PodcastSelectedFragment extends Fragment {
     EpisodesGridAdapter episodeAdapter;
     ProgressBar loading;
     FloatingActionButton fab;
+
+    static String MY_DB_TITLE;
 
     private AppDatabase fdb;
 
@@ -81,6 +86,7 @@ public class PodcastSelectedFragment extends Fragment {
         episodesGrid = v.findViewById(R.id.episodesGrid);
         loading = v.findViewById(R.id.progressBar);
         fab = v.findViewById(R.id.floatingActionButton);
+        favourite = v.findViewById(R.id.favourite);
 
         mToolbarLayout = (CollapsingToolbarLayout)v.findViewById(R.id.collapsing_toolbar_layout);
         mToolbar = v.findViewById(R.id.app_bar);
@@ -97,19 +103,12 @@ public class PodcastSelectedFragment extends Fragment {
 
         fdb = AppDatabase.getInstance(getActivityCast());
 
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onFavouriteClicked();
-            }
-        });
-
         return v;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        Bundle dataBundle = getArguments();
+        final Bundle dataBundle = getArguments();
         if(dataBundle.getParcelable("PODCAST_DATA") instanceof PodcastModel){
             PodcastModel data = dataBundle.getParcelable("PODCAST_DATA");
 
@@ -117,6 +116,9 @@ public class PodcastSelectedFragment extends Fragment {
             originDescription = data.getPodcastDesc();
             podcastID = data.getId();
             imageURL = data.getPodcastThumbnail();
+
+            compareWithDatabase(podcastID);
+
         }else{
             FavouritePodcasts data = dataBundle.getParcelable("PODCAST_DATA");
 
@@ -124,11 +126,15 @@ public class PodcastSelectedFragment extends Fragment {
             originDescription = data.getPodcastDesc();
             podcastID = data.getPid();
             imageURL = data.getPodcastThumbnail();
+
+            fab.setVisibility(View.INVISIBLE);
+            favourite.setActivated(true);
         }
         //}
         mToolbarLayout.setTitle(originTitle);
         originalDescription.setText(originDescription);
         Picasso.with(getActivityCast()).load(imageURL).into(podcastImage);
+
 
         String URL = "https://listennotes.p.mashape.com/api/v1/search?language=English" +
                 "&ocid="+podcastID+"&offset=0&" +
@@ -152,6 +158,31 @@ public class PodcastSelectedFragment extends Fragment {
             }
         });
 
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onFavouriteClicked();
+                if(!favourite.isActivated())
+                    Toast.makeText(getActivityCast(),"Added to Favourites",Toast.LENGTH_SHORT).show();
+                favourite.setText(R.string.unfavourite);
+                favourite.setActivated(!favourite.isActivated());
+
+                if(!favourite.isActivated()){
+
+                    favourite.setText(R.string.favourite);
+                    Toast.makeText(getActivityCast(),"Removed from Favourites",Toast.LENGTH_SHORT).show();
+
+                    AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            fdb.favouriteDao().deletePodcast(podcastID);
+                        }
+                    });
+                }
+
+            }
+        });
 
     }
 
@@ -207,7 +238,7 @@ public class PodcastSelectedFragment extends Fragment {
     }
 
     private void onFavouriteClicked(){
-        Toast.makeText(getContext(),"SAVED",Toast.LENGTH_LONG).show();
+
         final FavouritePodcasts podcast = new FavouritePodcasts(originTitle,originDescription,imageURL,podcastID);
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override
@@ -216,6 +247,29 @@ public class PodcastSelectedFragment extends Fragment {
 
             }
         });
+    }
+
+    private void compareWithDatabase(final String pid){
+
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                String title = fdb.favouriteDao().getFavouriteTitle(pid);
+                  if(originTitle.equals(title)){
+                        getActivityCast().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                favourite.setText(R.string.unfavourite);
+                                favourite.setActivated(true);
+                                onFavouriteClicked();
+                            }
+                        });
+
+                    }
+
+            }
+        });
+
     }
 
 }

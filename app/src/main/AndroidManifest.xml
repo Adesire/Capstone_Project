@@ -18,12 +18,28 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".PodcastActivity"
-            android:parentActivityName=".MainActivity"/>
-        <activity android:name=".PodacastSelectedActivity"
+        <activity
+            android:name=".PodcastActivity"
+            android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".PodacastSelectedActivity"
             android:parentActivityName=".PodcastActivity">
 
         </activity>
+
+        <receiver android:name=".PlaybackWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/playback_widget_info" />
+        </receiver>
+
+        <service android:name=".MyMediaService"/>
+        <service android:name=".PlaybackWidgetService" />
+
     </application>
 
 </manifest>

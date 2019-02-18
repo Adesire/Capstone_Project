@@ -84,13 +84,32 @@
                         android:padding="4dp"
                         android:orientation="vertical">
 
-                        <TextView
-                            android:id="@+id/textView2"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Description"
-                            android:textSize="28sp"
-                            android:textStyle="bold"/>
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal"
+                            android:paddingRight="8dp">
+
+                            <TextView
+                                android:id="@+id/textView2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Description"
+                                android:textSize="28sp"
+                                android:textStyle="bold"/>
+
+                            <Button
+                                android:id="@+id/favourite"
+                                android:clickable="false"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="20dp"
+                                android:layout_weight="1"
+                                android:drawableStart="@drawable/fav_toggle"
+                                android:text="@string/favourite"
+                                android:background="#FFFFFF"/>
+
+                        </LinearLayout>
 
                         <View
                             android:id="@+id/divider"
@@ -161,6 +180,8 @@
 
     </FrameLayout>
 
+
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/floatingActionButton"
         android:layout_width="match_parent"
@@ -169,6 +190,7 @@
         android:layout_gravity="end"
         android:layout_marginTop="190dp"
         android:layout_marginRight="10dp"
+        app:fabSize="mini"
 
         android:src="@android:drawable/btn_star_big_off" />
 

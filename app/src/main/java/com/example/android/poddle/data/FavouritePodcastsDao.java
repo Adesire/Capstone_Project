@@ -22,4 +22,7 @@ public interface FavouritePodcastsDao {
 
     @Query("DELETE FROM favourites_table WHERE pid = :pid")
     void deletePodcast(String pid);
+
+    @Query("SELECT podcastTitle FROM favourites_table WHERE pid = :pid")
+    String getFavouriteTitle(String pid);
 }
