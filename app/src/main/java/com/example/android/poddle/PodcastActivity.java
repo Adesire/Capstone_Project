@@ -97,7 +97,7 @@ public class PodcastActivity extends AppCompatActivity implements PodcastGridAda
 
         } else{
 
-            URL = "https://api.listennotes.com//api/v1/search?q="+query+"&sort_by_date=0&type=podcast";
+            URL = "https://api.listennotes.com/api/v1/search?q="+query+"&sort_by_date=0&type=podcast";
             podcastNetworkCalls(URL,MainActivity.KEY);
             toolbar.setTitle("Searched results");
 
@@ -124,7 +124,7 @@ public class PodcastActivity extends AppCompatActivity implements PodcastGridAda
             @Override
             public void onChanged(@Nullable List<FavouritePodcasts> favouritePodcasts) {
                 mFavouritesAdapter.setFavouritePodcasts(favouritePodcasts);
-                Log.e("Favourite",favouritePodcasts.get(0).getPodcastTitle());
+                //Log.e("Favourite",favouritePodcasts.get(0).getPodcastTitle());
             }
         });
     }

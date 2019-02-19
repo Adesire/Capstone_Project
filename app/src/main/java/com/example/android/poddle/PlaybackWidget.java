@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.view.View;
 import android.widget.RemoteViews;
 
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -21,28 +22,34 @@ public class PlaybackWidget extends AppWidgetProvider {
 
     public static String HEADING;
     SharedPreferences mSharedPreferences;
+    private boolean playing;
 
     public PlaybackWidget() {
     }
 
-    static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
+    private void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
 
         CharSequence widgetText = context.getString(R.string.appwidget_text);
         // Construct the RemoteViews object
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.playback_widget);
+        Intent intent = new Intent(context,PlaybackWidgetService.class);
+        PendingIntent pendingIntent = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        views.setOnClickPendingIntent(R.id.widget_Parent,pendingIntent);
 
         Intent serviceIntentPlay = new Intent(context, PlaybackWidgetService.class);
         Intent serviceIntentPause = new Intent(context, PlaybackWidgetService.class);
 
         serviceIntentPlay.setAction("PLAY");
-        serviceIntentPlay.setAction("PAUSE");
-        serviceIntentPlay.setAction("FAST_FORWARD");
+        serviceIntentPause.setAction("PAUSE");
+        //serviceIntentPlay.setAction("FAST_FORWARD");
 
         //PendingIntent playPausePending = MediaButtonReceiver.buildMediaButtonPendingIntent(context, PlaybackStateCompat.ACTION_PLAY_PAUSE);
         // PendingIntent.getService(context,0,serviceIntentPlay,0);
-        PendingIntent playPending = PendingIntent.getService(context, 0, serviceIntentPlay, 0);
-        PendingIntent ffwdPending = PendingIntent.getService(context, 0, serviceIntentPause, 0);
+        PendingIntent playPending = MediaButtonReceiver.buildMediaButtonPendingIntent(context, PlaybackStateCompat.ACTION_PLAY_PAUSE);//PendingIntent.getService(context, 0, serviceIntentPlay, 0);
+        PendingIntent pausePending = PendingIntent.getService(context, 0, serviceIntentPause, 0);
+
+        //PendingIntent play = PendingIntent.get;
         //views.setRemoteAdapter(R.id.playbackControls,serviceIntent);
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         if (sharedPreferences.contains("media_title")) {
@@ -50,12 +57,26 @@ public class PlaybackWidget extends AppWidgetProvider {
         }
         views.setImageViewBitmap(R.id.widget_PlayingThumbnail, MyMediaService.getMyBitmap());
 
-        views.setOnClickPendingIntent(R.id.exo_play, playPending);
-        views.setOnClickPendingIntent(R.id.exo_ffwd, ffwdPending);
+        //context.startService(serviceIntentPlay);
+        if(playing){
+            views.setViewVisibility(R.id.widget_play, View.GONE);
+            views.setViewVisibility(R.id.widget_pause, View.VISIBLE);
+            views.setOnClickPendingIntent(R.id.widget_pause, getPendingIntent(context,"PAUSE"));
+        }else{
+            views.setViewVisibility(R.id.widget_play, View.VISIBLE);
+            views.setViewVisibility(R.id.widget_pause, View.GONE);
+            views.setOnClickPendingIntent(R.id.widget_play, getPendingIntent(context,"PLAY"));
+        }
 
 
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views);
+    }
+
+    private PendingIntent getPendingIntent (Context c, String action){
+        Intent intent = new Intent(c, getClass());
+        intent.setAction(action);
+        return PendingIntent.getBroadcast(c, 0, intent, 0);
     }
 
     @Override
@@ -64,6 +85,34 @@ public class PlaybackWidget extends AppWidgetProvider {
         for (int appWidgetId : appWidgetIds) {
             updateAppWidget(context, appWidgetManager, appWidgetId);
         }
+    }
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        String action = intent.getAction();
+        if (action != null && action.equals(AppWidgetManager.ACTION_APPWIDGET_UPDATE)){
+            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+            int[] appWidgetIds = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
+
+            playing = intent.getBooleanExtra("IS_PLAYING",false);
+
+            for (int appWidgetId : appWidgetIds) {
+                updateAppWidget(context, appWidgetManager, appWidgetId);
+            }
+        }
+
+        if(action.equals("PLAY")){
+            Intent play = new Intent(context,PlaybackWidgetService.class);
+            play.setAction("PLAY");
+            context.startService(play);
+        }
+        if(action.equals("PAUSE")){
+            Intent pause = new Intent(context,PlaybackWidgetService.class);
+            pause.setAction("PAUSE");
+            context.startService(pause);
+        }
+
+        super.onReceive(context, intent);
     }
 
     @Override

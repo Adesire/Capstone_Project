@@ -102,7 +102,7 @@ public class MyMediaService extends Service {
             }
         });
         mPlayerNotificationManager.setPlayer(player);
-        //mediaSession = new MediaSessionCompat(this,MEDIA_SESSION_TAG);
+        mediaSession = PodcastAudioFragment.myMediaSession();//new MediaSessionCompat(this,MEDIA_SESSION_TAG);
         mediaSession.setActive(true);
         mPlayerNotificationManager.setMediaSessionToken(mediaSession.getSessionToken());
 
