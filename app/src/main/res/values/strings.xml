@@ -8,5 +8,24 @@
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
     <string name="playback_name">Playback</string>
+    <string name="insterstitial_ad_string">ca-app-pub-3940256099942544/1033173712</string>
+    <string name="description">Description</string>
+    <string name="episode_title">Episode Title</string>
+    <string name="listen">Listen</string>
+    <string name="subtitle">Subtitle</string>
+    <string name="title">Title</string>
+    <string name="episodes">Episodes</string>
+    <string name="favourites">Favourites</string>
+    <string name="search">Search</string>
+    <string name="connection_fail">PLEASE CONNECT TO THE INTERNET TO VIEW...</string>
+    <string name="categories">Categories</string>
+    <string name="podcast_image">Podcast Image</string>
+    <string name="rewind">Rewind</string>
+    <string name="play">Play</string>
+    <string name="pause">Pause</string>
+    <string name="fast_forward">Fast forward</string>
+    <string name="remove_podcast">Long Click to remove Podcast</string>
+    <string name="searched_results">Searched results</string>
+    <string name="powered_by_listen_notes">powered by Listen notes</string>
 
 </resources>

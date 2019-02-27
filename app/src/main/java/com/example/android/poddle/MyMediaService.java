@@ -3,43 +3,27 @@ package com.example.android.poddle;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.media.MediaBrowserCompat;
-import android.support.v4.media.MediaBrowserServiceCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 
-import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.example.android.poddle.fragments.PodcastAudioFragment;
+import com.example.android.poddle.fragments.PodcastSelectedFragment;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator;
-import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.ui.PlayerNotificationManager;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
-import com.google.android.exoplayer2.util.Util;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.List;
 
 public class MyMediaService extends Service {
 
@@ -72,7 +56,7 @@ public class MyMediaService extends Service {
                     @Override
                     public PendingIntent createCurrentContentIntent(Player player) {
                         PendingIntent contentPendingIntent = PendingIntent.getActivity(MyMediaService.this,0,
-                                new Intent(MyMediaService.this,PodcastSelectedFragment.class),0);
+                                new Intent(MyMediaService.this, PodcastSelectedFragment.class),0);
                         return contentPendingIntent;
                     }
 
@@ -134,8 +118,9 @@ public class MyMediaService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
+
 
     public static Bitmap getMyBitmap(){
         Bitmap image= null;

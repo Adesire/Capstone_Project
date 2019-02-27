@@ -1,4 +1,4 @@
-package com.example.android.poddle;
+package com.example.android.poddle.adapters;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.android.poddle.R;
 import com.example.android.poddle.data.FavouritePodcasts;
 import com.squareup.picasso.Picasso;
 
@@ -22,7 +23,7 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.My
 
     private ItemClickListener mListener;
 
-    FavouritesAdapter(Context mContext,ItemClickListener mListener){
+    public FavouritesAdapter(Context mContext, ItemClickListener mListener){
         this.mContext = mContext;
         this.mListener = mListener;
     }

@@ -1,8 +1,7 @@
-package com.example.android.poddle;
+package com.example.android.poddle.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -21,6 +20,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.poddle.AppExecutors;
+import com.example.android.poddle.MainActivity;
+import com.example.android.poddle.PodacastSelectedActivity;
+import com.example.android.poddle.PodcastModel;
+import com.example.android.poddle.R;
+import com.example.android.poddle.adapters.EpisodesGridAdapter;
 import com.example.android.poddle.data.AppDatabase;
 import com.example.android.poddle.data.FavouritePodcasts;
 import com.loopj.android.http.AsyncHttpClient;
@@ -28,7 +33,6 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -41,7 +45,10 @@ public class PodcastSelectedFragment extends Fragment {
     TextView originalDescription;
     ImageView podcastImage;
     Button favourite;
-    static String originTitle,originDescription,imageURL,podcastID;
+    static String originTitle;
+    static String originDescription;
+    static String imageURL;
+    public static String podcastID;
     RecyclerView episodesGrid;
     LinearLayoutManager mLayoutManager;
     private CollapsingToolbarLayout mToolbarLayout;
@@ -140,7 +147,7 @@ public class PodcastSelectedFragment extends Fragment {
                 "&ocid="+podcastID+"&offset=0&" +
                 "q="+originTitle+"&sort_by_date=1&type=episode";
 
-        selectedPodcastNetworking(URL,MainActivity.KEY);
+        selectedPodcastNetworking(URL, MainActivity.KEY);
 
         episodesGrid.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override

@@ -1,28 +1,33 @@
 package com.example.android.poddle;
 
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.Nullable;
+import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.SearchView;
+import android.widget.TextView;
 
-import com.example.android.poddle.data.AppDatabase;
-import com.example.android.poddle.data.FavouritePodcasts;
+import com.example.android.poddle.adapters.GenreGridAdapter;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.List;
+import java.util.Random;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -30,7 +35,10 @@ public class MainActivity extends AppCompatActivity implements GenreGridAdapter.
 
     GridLayoutManager mLayoutManager;
     RecyclerView genreView;
-    static String KEY = "";
+    FirebaseAnalytics mFirebaseAnalytics;
+    TextView networkFail;
+    ProgressBar load;
+    public static String KEY = "";
 
 
 
@@ -39,21 +47,45 @@ public class MainActivity extends AppCompatActivity implements GenreGridAdapter.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        networkFail = (TextView) findViewById(R.id.no_network);
+        load = (ProgressBar) findViewById(R.id.progressBar);
+
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         genreView = (RecyclerView) findViewById(R.id.genreGrid);
-        mLayoutManager = new GridLayoutManager(this,3);
+        mLayoutManager = new GridLayoutManager(this,2);
         genreView.setLayoutManager(mLayoutManager);
 
-        networkCalls("https://api.listennotes.com/api/v1/genres",KEY);
+
+        if(checkConnection()){
+            load.setVisibility(View.VISIBLE);
+            networkCalls("https://api.listennotes.com/api/v1/genres",KEY);
+        }else {
+            networkFail.setVisibility(View.VISIBLE);
+        }
 
 
+
+    }
+
+    private boolean checkConnection(){
+        ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        assert cm != null;
+        NetworkInfo active = cm.getActiveNetworkInfo();
+        if(active != null && active.getState() == NetworkInfo.State.CONNECTED){
+            return true;
+        }
+        return false;
     }
 
 
 
     private void networkCalls(String URL,String key){
+        load.setVisibility(View.INVISIBLE);
         AsyncHttpClient client = new AsyncHttpClient();
         client.addHeader("X-Mashape-Key",key);
         client.get(URL,new JsonHttpResponseHandler(){
@@ -89,11 +121,7 @@ public class MainActivity extends AppCompatActivity implements GenreGridAdapter.
                 Log.e("TAAAAG1",query);
 
 
-                Intent mine = new Intent(MainActivity.this,PodcastActivity.class);
-                //Log.e("TED",data.toString());
-                mine.putExtra("search_results",query);
-                mine.putExtra("PodcastBundle","");
-                startActivity(mine);
+                new AsyncTaskSearch().execute(query);
 
 
                 return false;
@@ -117,5 +145,18 @@ public class MainActivity extends AppCompatActivity implements GenreGridAdapter.
             startActivity(mine);
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public class AsyncTaskSearch extends AsyncTask<String,Void,Void>{
+
+        @Override
+        protected Void doInBackground(String... strings) {
+            Intent mine = new Intent(MainActivity.this,PodcastActivity.class);
+            //Log.e("AsyncTaskSearch","search successful");
+            mine.putExtra("search_results",strings[0]);
+            mine.putExtra("PodcastBundle","");
+            startActivity(mine);
+            return null;
+        }
     }
 }

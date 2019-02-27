@@ -1,4 +1,4 @@
-package com.example.android.poddle;
+package com.example.android.poddle.adapters;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -10,19 +10,17 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.android.poddle.PodcastModel;
+import com.example.android.poddle.R;
 import com.squareup.picasso.Picasso;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 
 public class PodcastGridAdapter extends RecyclerView.Adapter<PodcastGridAdapter.PodcastViewHolder>{
 
     Context c;
-    ArrayList<PodcastModel> podcast;
-    PodcastItemClickedListener mListener;
+    private ArrayList<PodcastModel> podcast;
+    private PodcastItemClickedListener mListener;
 
     public PodcastGridAdapter(Context c, ArrayList<PodcastModel> podcast, PodcastItemClickedListener mListener){
         this.c = c;

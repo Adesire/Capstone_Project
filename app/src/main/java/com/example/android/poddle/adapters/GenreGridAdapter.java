@@ -1,19 +1,23 @@
-package com.example.android.poddle;
+package com.example.android.poddle.adapters;
 
 import android.content.Context;
-import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.android.poddle.R;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Random;
 
 public class GenreGridAdapter extends RecyclerView.Adapter<GenreGridAdapter.GenreViewHolder>{
 
@@ -59,11 +63,16 @@ public class GenreGridAdapter extends RecyclerView.Adapter<GenreGridAdapter.Genr
     class GenreViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         TextView genre;
+        CardView genreCard;
+        int currentColor;
 
         public GenreViewHolder(View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
             genre = (TextView)itemView.findViewById(R.id.genre);
+            genreCard = itemView.findViewById(R.id.genreCard);
+            Random rnd = new Random();
+            currentColor = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
         }
 
         void bind(int itemPosition){
@@ -73,6 +82,7 @@ public class GenreGridAdapter extends RecyclerView.Adapter<GenreGridAdapter.Genr
                String genreName = genreObject.optString("name");
 
                 genre.setText(genreName);
+                genreCard.setCardBackgroundColor(currentColor);
 
             }catch(JSONException e){
                 e.printStackTrace();

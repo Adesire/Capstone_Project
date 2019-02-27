@@ -8,4 +8,8 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="PoddleBar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="android:colorForeground">@color/colorPrimaryDark</item>
+    </style>
+
 </resources>

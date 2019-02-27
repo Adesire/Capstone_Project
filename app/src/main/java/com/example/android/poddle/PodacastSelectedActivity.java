@@ -11,16 +11,12 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.android.poddle.adapters.EpisodesGridAdapter;
 import com.example.android.poddle.data.FavouritePodcasts;
-import com.squareup.picasso.Picasso;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
+import com.example.android.poddle.fragments.PodcastAudioFragment;
+import com.example.android.poddle.fragments.PodcastSelectedFragment;
 
 public class PodacastSelectedActivity extends AppCompatActivity implements EpisodesGridAdapter.OnEpisodeClickedListener{
 
@@ -79,10 +75,6 @@ public class PodacastSelectedActivity extends AppCompatActivity implements Episo
 
     @Override
     public void onEpisodeClicked(final Bundle bundle) {
-        /*replaceSelectedPodcastActivityContent(PodcastAudioFragment.newInstance(bundle.getString("PODCAST_AUDIO"),
-                bundle.getString("PODCAST_TITLE"),bundle.getString("PODCAST_DESC")),true);
-
-        PodcastAudioFragment.TITLE = originTitle;*/
 
         final AlertDialog.Builder mBuilder = new AlertDialog.Builder(this);
         View v = getLayoutInflater().inflate(R.layout.episode_dialog,null);

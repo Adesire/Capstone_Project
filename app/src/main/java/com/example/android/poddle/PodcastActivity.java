@@ -12,15 +12,16 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.SearchView;
 import android.widget.Toast;
 
+import com.example.android.poddle.adapters.FavouritesAdapter;
+import com.example.android.poddle.adapters.PodcastGridAdapter;
 import com.example.android.poddle.data.AppDatabase;
 import com.example.android.poddle.data.FavouritePodcasts;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
+import com.google.android.gms.ads.MobileAds;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -33,7 +34,7 @@ import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
 
-public class PodcastActivity extends AppCompatActivity implements PodcastGridAdapter.PodcastItemClickedListener,FavouritesAdapter.ItemClickListener{
+public class PodcastActivity extends AppCompatActivity implements PodcastGridAdapter.PodcastItemClickedListener, FavouritesAdapter.ItemClickListener{
 
     static String URL;
     String name;
@@ -42,10 +43,12 @@ public class PodcastActivity extends AppCompatActivity implements PodcastGridAda
     static int x;
     ArrayList<PodcastModel> results;
     PodcastGridAdapter podcastAdapter;
-    FavouritesAdapter mFavouritesAdapter;
+    public FavouritesAdapter mFavouritesAdapter;
 
     RecyclerView podcastGrid;
     GridLayoutManager mLayoutManager;
+
+    InterstitialAd mInterstitialAd;
 
     private AppDatabase db;
 
@@ -53,6 +56,8 @@ public class PodcastActivity extends AppCompatActivity implements PodcastGridAda
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_podcast);
+
+        loadAds();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar2);
         setSupportActionBar(toolbar);
@@ -90,8 +95,7 @@ public class PodcastActivity extends AppCompatActivity implements PodcastGridAda
             podcastNetworkCalls(URL,MainActivity.KEY);
         }else if(!data.equals("") && x==1){
             setupViewModel();
-            Log.e("THISSS","ONEEEE");
-            Toast.makeText(this,"Long Click to remove Podcast",Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.remove_podcast,Toast.LENGTH_LONG).show();
             podcastGrid.setAdapter(mFavouritesAdapter);
             toolbar.setTitle(R.string.favourite);
 
@@ -99,7 +103,7 @@ public class PodcastActivity extends AppCompatActivity implements PodcastGridAda
 
             URL = "https://api.listennotes.com/api/v1/search?q="+query+"&sort_by_date=0&type=podcast";
             podcastNetworkCalls(URL,MainActivity.KEY);
-            toolbar.setTitle("Searched results");
+            toolbar.setTitle(R.string.searched_results);
 
             podcastGrid.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
@@ -155,7 +159,7 @@ public class PodcastActivity extends AppCompatActivity implements PodcastGridAda
         client.get(URL,new JsonHttpResponseHandler(){
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                super.onSuccess(statusCode, headers, response);;
+                super.onSuccess(statusCode, headers, response);
                 JSONArray podcastDataNext = response.optJSONArray("results");
                 i = response.optInt("next_offset");
 
@@ -175,10 +179,33 @@ public class PodcastActivity extends AppCompatActivity implements PodcastGridAda
     @Override
     public void onPodcastItemClicked(Bundle bundle) {
 
-        Intent mine = new Intent(this,PodacastSelectedActivity.class);
-        mine.putExtra("PODCAST_INTENT",bundle.getParcelable("PODCAST_ITEM"));
         //Log.e("PODCAST_INTENT",bundle.getString("PODCAST_ITEM"));
-        startActivity(mine);
+        if(mInterstitialAd.isLoaded()){
+            Intent mine = new Intent(this,PodacastSelectedActivity.class);
+            mine.putExtra("PODCAST_INTENT",bundle.getParcelable("PODCAST_ITEM"));
+            startActivity(mine);
+            mInterstitialAd.show();
+        }
+
+    }
+
+    private void loadAds(){
+        mInterstitialAd = new InterstitialAd(this);
+        mInterstitialAd.setAdUnitId(getString(R.string.insterstitial_ad_string));
+
+        final AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+                .build();
+
+        mInterstitialAd.loadAd(adRequest);
+        MobileAds.initialize(this,"ca-app-pub-3940256099942544~3347511713");
+
+        mInterstitialAd.setAdListener(new AdListener(){
+            @Override
+            public void onAdClosed() {
+                mInterstitialAd.loadAd(adRequest);
+            }
+        });
     }
 
 

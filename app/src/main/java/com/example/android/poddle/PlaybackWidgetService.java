@@ -1,6 +1,5 @@
 package com.example.android.poddle;
 
-import android.app.Service;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -10,23 +9,17 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaBrowserServiceCompat;
-import android.support.v4.media.MediaDescriptionCompat;
-import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
-import android.widget.RemoteViewsService;
 import android.widget.Toast;
 
-import com.google.android.exoplayer2.Player;
+import com.example.android.poddle.fragments.PodcastAudioFragment;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
-import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator;
 
 import java.util.List;
 
-import static com.example.android.poddle.MyMediaService.getMyMediaDescription;
 
 public class PlaybackWidgetService extends MediaBrowserServiceCompat {
 
@@ -70,19 +63,28 @@ public class PlaybackWidgetService extends MediaBrowserServiceCompat {
         }
 
         if (intent.getAction().equals("PLAY")) {
-            //make whatever you want (play/stop song, next/previous etc)
             Log.e("SERVICE","Play button clicked!!");
             controls.play();
             reachWidget(0);
-            //player.setPlayWhenReady(true);
         }
         if(intent.getAction().equals("PAUSE")){
             Log.e("SERVICE","Pause button clicked!!");
             controls.pause();
             reachWidget(1);
         }
-        /*Log.e("SERVICE","A button clicked!!");
-        MediaButtonReceiver.handleIntent(mediaSession,intent);*/
+
+        if(intent.getAction().equals("REWIND")){
+            Log.e("SERVICE","Rewind button clicked!!");
+            controls.rewind();
+            widgetRwd();
+        }
+
+        if(intent.getAction().equals("FAST_FORWARD")){
+            Log.e("SERVICE","Ffwd button clicked!!");
+            controls.fastForward();
+            widgetFfwd();
+        }
+
         return START_STICKY;
     }
 
@@ -101,6 +103,21 @@ public class PlaybackWidgetService extends MediaBrowserServiceCompat {
 
     }
 
+    private void widgetFfwd(){
+        Intent intent = new Intent(this, PlaybackWidget.class);
+        intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+        int[] ids = AppWidgetManager.getInstance(getApplication())
+                .getAppWidgetIds(new ComponentName(getApplication(), PlaybackWidget.class));
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+    }
+
+    private void widgetRwd(){
+        Intent intent = new Intent(this, PlaybackWidget.class);
+        intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+        int[] ids = AppWidgetManager.getInstance(getApplication())
+                .getAppWidgetIds(new ComponentName(getApplication(), PlaybackWidget.class));
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+    }
 
     @Nullable
     @Override

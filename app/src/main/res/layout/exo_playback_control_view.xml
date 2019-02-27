@@ -18,7 +18,7 @@
             android:id="@+id/nowPlayingTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Title"
+            android:text="@string/title"
             android:textColor="#FFFFFF"
             android:textSize="18sp"
             android:textStyle="bold"
@@ -40,11 +40,13 @@
 
         <ImageView
             android:id="@+id/playingThumbnail"
+            android:contentDescription="@string/podcast_image"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:paddingTop="3dp"/>
 
         <ImageButton android:id="@id/exo_play"
+            android:contentDescription="@string/play"
             style="@style/ExoMediaButton.Play"/>
 
         <ImageButton android:id="@id/exo_pause"

@@ -1,4 +1,4 @@
-package com.example.android.poddle;
+package com.example.android.poddle.adapters;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -8,6 +8,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.example.android.poddle.PodcastModel;
+import com.example.android.poddle.R;
 
 import java.util.ArrayList;
 

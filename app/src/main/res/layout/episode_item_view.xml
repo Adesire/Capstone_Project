@@ -22,7 +22,7 @@
                 android:id="@+id/episode_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Title"
+                android:text="@string/title"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -37,7 +37,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:maxLines="3"
-                android:text="Subtitle"
+                android:text="@string/subtitle"
                 android:textSize="16sp" />
         </LinearLayout>
 

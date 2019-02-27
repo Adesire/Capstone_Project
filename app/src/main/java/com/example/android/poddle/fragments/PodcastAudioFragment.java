@@ -1,7 +1,5 @@
-package com.example.android.poddle;
+package com.example.android.poddle.fragments;
 
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -10,12 +8,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -27,18 +23,20 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.android.poddle.MyMediaService;
+import com.example.android.poddle.PlaybackWidget;
+import com.example.android.poddle.PlaybackWidgetService;
+import com.example.android.poddle.PodacastSelectedActivity;
+import com.example.android.poddle.R;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
-import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -46,9 +44,7 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
@@ -66,9 +62,11 @@ public class PodcastAudioFragment extends Fragment implements Player.EventListen
     private static MediaSessionCompat mMediaSession;
     private PlaybackStateCompat.Builder mStateBuilder;
     Toolbar mToolbar;
-    static String IMAGE,PLAYER_STATE;
-    static boolean ON_LISTEN_CLICKED;
+    public static String IMAGE;
+    static String PLAYER_STATE;
+    public static boolean ON_LISTEN_CLICKED;
     PlaybackWidget mPlaybackWidget;
+    Intent notification;
 
     String audio, title, desc;
 
@@ -103,6 +101,7 @@ public class PodcastAudioFragment extends Fragment implements Player.EventListen
 
         initializeMediaSession();
 
+        notification = new Intent(getActivity(), MyMediaService.class);
 
         return v;
     }
@@ -177,6 +176,7 @@ public class PodcastAudioFragment extends Fragment implements Player.EventListen
             MyMediaService.player = mExoPlayer;
             PlaybackWidgetService.player = mExoPlayer;
 
+
             mPlayerView.setPlayer(mExoPlayer);
             mExoPlayer.addListener(this);
 
@@ -196,6 +196,7 @@ public class PodcastAudioFragment extends Fragment implements Player.EventListen
             MyMediaService.AUDIO_URL = audioUri;
             MyMediaService.AUDIO_TITLE = title;
             MyMediaService.AUDIO_DESC = desc;
+
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
             SharedPreferences.Editor editor = preferences.edit();
             editor.putString("media_title", title);
@@ -203,16 +204,18 @@ public class PodcastAudioFragment extends Fragment implements Player.EventListen
             AppWidgetManager manager = AppWidgetManager.getInstance(getContext());
             ComponentName thisWidget = new ComponentName(getContext(), PlaybackWidget.class);
             mPlaybackWidget.onUpdate(getContext(), manager, manager.getAppWidgetIds(thisWidget));
-            showNotification();
+
             mExoPlayer.prepare(mediaSource);
             mExoPlayer.setPlayWhenReady(ON_LISTEN_CLICKED);
         }
     }
 
-
     private void showNotification() {
-        Util.startForegroundService(getContext(), new Intent(getActivity(), MyMediaService.class));
+        Util.startForegroundService(getActivityCast().getApplicationContext(), notification);
+    }
 
+    private void stopNotification() {
+        getActivityCast().stopService(notification);
     }
 
     @Override
@@ -232,18 +235,22 @@ public class PodcastAudioFragment extends Fragment implements Player.EventListen
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-        if ((playbackState == ExoPlayer.STATE_READY) && playWhenReady) {
+        if ((playbackState == Player.STATE_READY) && playWhenReady) {
             mStateBuilder.setState(PlaybackStateCompat.STATE_PLAYING,
                     mExoPlayer.getCurrentPosition(), 1f);
             PLAYER_STATE = "PLAYING";
             Log.e("onPlayerStateChanged:", "PLAYING");
-        } else if ((playbackState == ExoPlayer.STATE_READY)) {
+        } else if ((playbackState == Player.STATE_READY)) {
             mStateBuilder.setState(PlaybackStateCompat.STATE_PAUSED,
                     mExoPlayer.getCurrentPosition(), 1f);
-            Log.d("onPlayerStateChanged:", "PAUSED");
+            Log.e("onPlayerStateChanged:", "PAUSED");
         }
         mMediaSession.setPlaybackState(mStateBuilder.build());
+
+        showNotification();
+
     }
+
 
     @Override
     public void onRepeatModeChanged(int repeatMode) {

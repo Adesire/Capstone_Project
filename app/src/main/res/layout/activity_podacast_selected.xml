@@ -11,7 +11,7 @@
         android:id="@+id/toolbarSelected"
         android:layout_width="match_parent"
         android:layout_height="?actionBarSize"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:theme="@style/PoddleBar"
         android:elevation="4dp"
         app:layout_collapseMode="pin">
     </android.support.v7.widget.Toolbar>

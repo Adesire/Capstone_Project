@@ -16,9 +16,52 @@
         android:elevation="4dp">
     </android.support.v7.widget.Toolbar>
 
+
+    <TextView
+        android:id="@+id/no_network"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:fontFamily="serif-monospace"
+        android:text="@string/connection_fail"
+        android:textAlignment="center"
+        android:textSize="24sp"
+        android:textStyle="italic"
+        android:visibility="invisible"/>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="invisible"/>
+
+
+    <ImageView
+        android:id="@+id/listenNotes"
+        android:contentDescription="@string/powered_by_listen_notes"
+        android:layout_below="@id/toolbar"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="10dp"
+        android:src="@drawable/listen_notes"/>
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/genreGrid"
-        android:layout_below="@id/toolbar"
+        android:layout_below="@id/listenNotes"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/genreGrid"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="17dp"
+        android:layout_marginBottom="8dp"
+        android:text="@string/categories"
+        android:textSize="30sp"
+        android:textStyle="bold" />
 </RelativeLayout>
